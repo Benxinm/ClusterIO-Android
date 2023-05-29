@@ -29,6 +29,7 @@ import com.benxinm.localoss.ui.components.CircleButton
 import com.benxinm.localoss.ui.model.Page
 import com.benxinm.localoss.ui.theme.LineColor
 import com.benxinm.localoss.ui.theme.MainColor
+import com.benxinm.localoss.ui.util.Utils
 import com.benxinm.localoss.ui.util.noRippleClickable
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -61,7 +62,7 @@ fun MePage(navController: NavController, token: String,onImageCrop:(Uri)->Unit) 
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Text(text = "用户: 123")
-                Text(text = "公网/局域网IP: xxxxxxx")
+                Text(text = "公网/局域网IP: ${Utils.ip}")
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(text = "常用工具", fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
@@ -144,7 +145,7 @@ fun MePage(navController: NavController, token: String,onImageCrop:(Uri)->Unit) 
                 Spacer(modifier = Modifier.height(40.dp))
                 Button(
                     onClick = {
-                        Repository.logout(token).observe(lifecycleOwner) {
+                        Repository.logout("${Utils.HTTP+ Utils.ip}/user/logout",token).observe(lifecycleOwner) {
                             if (it.isSuccess) {
                                 navController.navigate(Page.Login.name)
                             }else{

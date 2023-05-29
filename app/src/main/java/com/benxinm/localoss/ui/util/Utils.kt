@@ -8,7 +8,8 @@ import java.math.BigInteger
 import java.security.MessageDigest
 
 object Utils {
-    var ip:String=""
+    var ip:String="47.113.216.236:9739"
+    const val HTTP="http://"
     /**
      * @param offset 偏移量
      * @param file  分块文件

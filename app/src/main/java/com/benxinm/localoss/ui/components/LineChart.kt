@@ -38,6 +38,6 @@ fun MyLineChart(/*data: List<Int>, pieces: Int*/) {
         xAxisDrawer = SimpleXAxisDrawer(labelTextColor = Color.LightGray, axisLineColor = Color.Transparent),
         yAxisDrawer = SimpleYAxisDrawer(labelTextColor = Color.LightGray,axisLineColor = Color.Transparent),
         pointDrawer = NoPointDrawer,
-        labels = listOf("01-25","01-31","02-06","02-12","02-18","02-24"), modifier = Modifier.fillMaxSize()
+        labels = listOf("03-13","03-19","03-25","03-31","04-06","04-12"), modifier = Modifier.fillMaxSize()
     )
 }

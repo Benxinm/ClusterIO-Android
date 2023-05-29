@@ -3,6 +3,7 @@ package com.benxinm.localoss.ui.pages
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,7 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,8 +30,10 @@ import com.benxinm.localoss.ui.model.Page
 import com.benxinm.localoss.ui.theme.BackgroundColor
 import com.benxinm.localoss.ui.theme.BottomColor
 import com.benxinm.localoss.ui.theme.MainColor
+import com.benxinm.localoss.ui.util.Utils
 import com.benxinm.localoss.ui.util.noRippleClickable
 import com.benxinm.localoss.viewModel.UserViewModel
+import com.google.accompanist.insets.R
 
 @Composable
 fun LoginPage(navController: NavController, userViewModel: UserViewModel) {
@@ -48,26 +54,33 @@ fun LoginPage(navController: NavController, userViewModel: UserViewModel) {
     }
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
+    LaunchedEffect(key1 = ip){
+        Utils.ip=ip
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundColor)
+            .background(Color.White)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(top = 150.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
         ) {
+            Row(modifier = Modifier.fillMaxWidth(0.85f), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "欢迎使用\n对象存储平台", fontWeight = FontWeight.W700, fontSize = 23.sp)
+                Image(painter = painterResource(id =com.benxinm.localoss.R.mipmap.login_image) , modifier = Modifier.offset(x = 20.dp),contentDescription ="" )
+            }
             AnimatedVisibility(visible = !isRegister) {
                 MyInputBox(
                     value = ip,
                     onValueChange = {
                         ip = it
                     },
-                    tint = "请输入公网/局域网ip",
+                    tint = "请输入公网/局域网ip:端口",
                     backgroundColor = BottomColor,
                     roundCornerDp = 20.dp,
-                    width = 0.85f
+                    width = 0.85f,
+                    textStyle = TextStyle(fontSize = 20.sp)
                 )
             }
             if (!isRegister) {
@@ -75,11 +88,11 @@ fun LoginPage(navController: NavController, userViewModel: UserViewModel) {
             }
             MyInputBox(value = email, onValueChange = {
                 email = it
-            }, tint = "请输入邮箱", backgroundColor = BottomColor, roundCornerDp = 20.dp, width = 0.85f)
+            }, tint = "请输入邮箱", backgroundColor = BottomColor, roundCornerDp = 20.dp, width = 0.85f, textStyle = TextStyle(fontSize = 20.sp))
             Spacer(modifier = Modifier.height(8.dp))
             MyInputBox(value = password, onValueChange = {
                 password = it
-            }, tint = "请输入密码", backgroundColor = BottomColor, roundCornerDp = 20.dp, width = 0.85f)
+            }, tint = "请输入密码", keyboardType = KeyboardType.Password, showPassword = false, backgroundColor = BottomColor, roundCornerDp = 20.dp, width = 0.85f, textStyle = TextStyle(fontSize = 20.sp))
             if (isRegister) {
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -92,14 +105,14 @@ fun LoginPage(navController: NavController, userViewModel: UserViewModel) {
                     tint = "请输入验证码",
                     backgroundColor = BottomColor,
                     roundCornerDp = 20.dp,
-                    width = 0.85f
+                    width = 0.85f, textStyle = TextStyle(fontSize = 20.sp)
                 ) {
                     Text(text = "获取验证码", color = MainColor, modifier = Modifier
                         .padding(end = 18.dp)
                         .noRippleClickable {
                             Log.d("sendCode", email)
                             Repository
-                                .sendCode(email)
+                                .sendCode("${Utils.HTTP+Utils.ip}/user/sendMail",email)
                                 .observe(lifecycleOwner) { result ->
                                     val isSuccess = result.isSuccess
                                     if (isSuccess) {
@@ -120,7 +133,7 @@ fun LoginPage(navController: NavController, userViewModel: UserViewModel) {
                 onClick = {
                     if (isRegister) {
                         if (code.isNotEmpty()) {
-                            Repository.register(email, password, code)
+                            Repository.register("${Utils.HTTP+Utils.ip}/user/logon",email, password, code)
                                 .observe(lifecycleOwner) { result ->
                                     if (result.isSuccess) {
                                         val toast =
@@ -138,7 +151,7 @@ fun LoginPage(navController: NavController, userViewModel: UserViewModel) {
                             toast.show()
                         }
                     } else {
-                        Repository.login(email, password).observe(lifecycleOwner) {
+                        Repository.login("${Utils.HTTP+Utils.ip}/user/login",email, password).observe(lifecycleOwner) {
                             val result = it.getOrNull()
                             if (it.isSuccess){
                                 userViewModel.token= result?.get("tokenValue") ?: ""

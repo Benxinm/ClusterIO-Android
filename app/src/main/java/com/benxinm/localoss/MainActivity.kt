@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
                 )
                 Surface(modifier = Modifier.systemBarsPadding()) {
                     LocalOSSApp{sourceUri->
-                        val file =File(this.filesDir,"${transferDate(System.currentTimeMillis())}.jpg")
+                        val file =File(this.filesDir,"cropped_pic_${transferDate(System.currentTimeMillis())}.jpg")
                         val destinationUri = file.toUri()
                         UCrop.of(sourceUri,destinationUri).start(this)
                         val bitmap: Bitmap? =

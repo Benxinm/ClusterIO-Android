@@ -17,25 +17,26 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 interface FileService {
-    @POST("/put/uploadShard")
+    @POST
     @Multipart
-    fun uploadBlock(@Header("token")token:String,@Part partList: List<MultipartBody.Part>): Call<CommonResult<Int>>
+    fun uploadBlock(@Url url:String,@Header("token")token:String,@Part partList: List<MultipartBody.Part>): Call<CommonResult<Int>>
     @FormUrlEncoded
-    @POST("/put/shardPreparation")
-    fun uploadPrepare(@Header("token")token: String,@Field("originMd5") md5:String,@Field("fileName") fileName:String,@Field("shardNum") num:Int,@Field("shardSize") size:Long,@Field("bucketId")bucketId:Int,@Field("isZip") isZip:Boolean):Call<CommonResult<String>>
+    @POST
+    fun uploadPrepare(@Url url:String,@Header("token")token: String,@Field("originMd5") md5:String,@Field("fileName") fileName:String,@Field("shardNum") num:Int,@Field("shardSize") size:Long,@Field("bucketId")bucketId:Int,@Field("isZip") isZip:Boolean):Call<CommonResult<String>>
     @Multipart
-    @POST("/put/uploadSimple")
-    fun uploadSingleFile(@Header("token")token: String,@Part partList: List<MultipartBody.Part>):Call<CommonResultNoData>
-    @GET("/get/getBucket/{bucketId}")
-    fun getBucketFiles(@Header("token")token: String,@Path("bucketId") bucketId: Int):Call<CommonResult<BucketFiles>>
+    @POST
+    fun uploadSingleFile(@Url url:String,@Header("token")token: String,@Part partList: List<MultipartBody.Part>):Call<CommonResultNoData>
+    @GET
+    fun getBucketFiles(@Url url:String,@Header("token")token: String):Call<CommonResult<BucketFiles>>
     @FormUrlEncoded
-    @POST("/delete/delFile")
-    fun deleteFile(@Header("token")token: String,@Field("bucketId")bucketId: Int,@Field("fileName")fileName: String,@Field("isForever") isForever:Boolean):Call<CommonResultNoData>
-    @GET("/get/getFile")
-    fun downloadFile(@Header("token")token: String,@Query("bucketId")bucketId: Int,@Query("fileName")fileName: String):Call<ResponseBody>
+    @POST
+    fun deleteFile(@Url url:String,@Header("token")token: String,@Field("bucketId")bucketId: Int,@Field("fileName")fileName: String,@Field("isForever") isForever:Boolean):Call<CommonResultNoData>
+    @GET
+    fun downloadFile(@Url url:String,@Header("token")token: String,@Query("bucketId")bucketId: Int,@Query("fileName")fileName: String):Call<ResponseBody>
     @FormUrlEncoded
-    @POST("/put/coldStore")
-    fun fileBackup(@Header("token")token: String,@Field("bucketId")bucketId: Int,@Field("fileName") fileName: String):Call<String?>
+    @POST
+    fun fileBackup(@Url url:String,@Header("token")token: String,@Field("bucketId")bucketId: Int,@Field("fileName") fileName: String):Call<String?>
 }

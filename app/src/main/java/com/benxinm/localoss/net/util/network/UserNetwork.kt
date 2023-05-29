@@ -13,10 +13,10 @@ import kotlin.coroutines.suspendCoroutine
 
 object UserNetwork {
     private val userService = ServiceCreator.create(UserService::class.java)
-    suspend fun login(email:String,password:String)= userService.login(email, password).await()
-    suspend fun register(email: String,password: String,code:String)= userService.register(email, password, code).await()
-    suspend fun sendCode(email:String)= userService.sendCode(email).await()
-    suspend fun logout(token:String)= userService.logout(token).await()
+    suspend fun login(url:String,email:String,password:String)= userService.login(url,email, password).await()
+    suspend fun register(url:String,email: String,password: String,code:String)= userService.register(url,email, password, code).await()
+    suspend fun sendCode(url:String,email:String)= userService.sendCode(url,email).await()
+    suspend fun logout(url:String,token:String)= userService.logout(url,token).await()
     private suspend fun <T> Call<T>.await(): T {
         return suspendCoroutine { continuation ->
             enqueue(object : Callback<T> {

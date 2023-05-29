@@ -57,9 +57,10 @@ fun CameraViewPermission(
                 val fileBody  = RequestBody.create(MediaType.parse("multipart/form-data"),file)
                 builder.addFormDataPart("file",file.name,fileBody)
                 val parts = builder.build().parts()
-                Repository.uploadSingleFile(token,parts).observe(lifecycleOwner){res->
+                Repository.uploadSingleFile("${Utils.HTTP+Utils.ip}/put/uploadSimple",token,parts).observe(lifecycleOwner){res->
                     if (res.isSuccess){
                         Toast.makeText(context,"上传成功", Toast.LENGTH_SHORT).show()
+                        bucketViewModel.bucketSize[0]++
                     }else{
                         res.onFailure {
                             Log.e("Network",it.message.toString())

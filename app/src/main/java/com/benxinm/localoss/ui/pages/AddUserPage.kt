@@ -2,6 +2,7 @@ package com.benxinm.localoss.ui.pages
 
 import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +31,7 @@ import com.benxinm.localoss.ui.model.PermissionType
 import com.benxinm.localoss.ui.model.UserPermissionType
 import com.benxinm.localoss.ui.theme.LineColor
 import com.benxinm.localoss.ui.theme.MainColor
+import com.benxinm.localoss.ui.util.Utils
 import com.benxinm.localoss.ui.util.noRippleClickable
 import kotlinx.coroutines.launch
 
@@ -73,7 +75,7 @@ fun AddUserPage(navController: NavController, token:String,bucketId:Int) {
                         Toast.makeText(context, "未填写邮箱", Toast.LENGTH_SHORT)
                     toast.show()
                 }else{
-                    Repository.addBucketUser(token, id = bucketId, type = permissionList[currentIndex].type, email = userMail).observe(lifecycleOwner){ result->
+                    Repository.addBucketUser("${Utils.HTTP+ Utils.ip}/bucket/user/add",token, id = bucketId, type = permissionList[currentIndex].type, email = userMail).observe(lifecycleOwner){ result->
                         if (result.isSuccess){
                             val toast =
                                 Toast.makeText(context, "添加成功", Toast.LENGTH_SHORT)
@@ -187,7 +189,7 @@ fun AddUserPage(navController: NavController, token:String,bucketId:Int) {
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
+                    Image(
                         painter = painterResource(id = com.benxinm.localoss.R.drawable.ic_folder),
                         contentDescription = "",
                         modifier = Modifier
@@ -204,7 +206,7 @@ fun AddUserPage(navController: NavController, token:String,bucketId:Int) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
+                        Image(
                             painter = painterResource(id = com.benxinm.localoss.R.drawable.ic_permission),
                             contentDescription = "",
                             modifier = Modifier

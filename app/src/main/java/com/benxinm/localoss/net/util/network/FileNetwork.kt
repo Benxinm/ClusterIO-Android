@@ -16,17 +16,17 @@ import kotlin.coroutines.suspendCoroutine
 
 object FileNetwork {
     private val fileService = ServiceCreator.create(FileService::class.java)
-    suspend fun uploadPrepare(token: String, md5:String, fileName:String,  num:Int,  size:Long, bucketId:Int, isZip:Boolean)=
-        fileService.uploadPrepare(token, md5, fileName, num, size, bucketId, isZip).await()
-    suspend fun uploadBlock(token:String,  partList: List<MultipartBody.Part>)=
-        fileService.uploadBlock(token, partList).await()
-    suspend fun uploadSingleFile(token: String, partList: List<MultipartBody.Part>)=
-        fileService.uploadSingleFile(token, partList).await()
-    suspend fun deleteFile(token: String,bucketId: Int,fileName: String,isForever:Boolean)=
-        fileService.deleteFile(token, bucketId, fileName, isForever).await()
-    suspend fun getBucketFiles(token: String,bucketId: Int)= fileService.getBucketFiles(token, bucketId).await()
-    suspend fun downloadFile(token: String,bucketId: Int,fileName: String)= fileService.downloadFile(token, bucketId, fileName).await()
-    suspend fun fileBackup(token: String,bucketId: Int,fileName: String)= fileService.fileBackup(token, bucketId, fileName).await()
+    suspend fun uploadPrepare(url:String,token: String, md5:String, fileName:String,  num:Int,  size:Long, bucketId:Int, isZip:Boolean)=
+        fileService.uploadPrepare(url,token, md5, fileName, num, size, bucketId, isZip).await()
+    suspend fun uploadBlock(url:String,token:String,  partList: List<MultipartBody.Part>)=
+        fileService.uploadBlock(url,token, partList).await()
+    suspend fun uploadSingleFile(url:String,token: String, partList: List<MultipartBody.Part>)=
+        fileService.uploadSingleFile(url,token, partList).await()
+    suspend fun deleteFile(url:String,token: String,bucketId: Int,fileName: String,isForever:Boolean)=
+        fileService.deleteFile(url,token, bucketId, fileName, isForever).await()
+    suspend fun getBucketFiles(url:String,token: String)= fileService.getBucketFiles(url,token).await()
+    suspend fun downloadFile(url:String,token: String,bucketId: Int,fileName: String)= fileService.downloadFile(url,token, bucketId, fileName).await()
+    suspend fun fileBackup(url:String,token: String,bucketId: Int,fileName: String)= fileService.fileBackup(url,token, bucketId, fileName).await()
     private suspend fun <T> Call<T>.await(): T {
         return suspendCoroutine { continuation ->
             enqueue(object : Callback<T> {

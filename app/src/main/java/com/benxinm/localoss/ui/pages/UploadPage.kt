@@ -67,10 +67,17 @@ fun UploadPage(navController: NavController, token: String, bucketViewModel: Buc
                         val fileBody  = RequestBody.create(MediaType.parse("multipart/form-data"),file)
                         builder.addFormDataPart("file",file.name,fileBody)
                         val parts = builder.build().parts()
-                        Repository.uploadSingleFile(token,parts).observe(lifecycleOwner){res->
+                        Repository.uploadSingleFile("${Utils.HTTP+Utils.ip}/put/uploadSimple",token,parts).observe(lifecycleOwner){res->
                             if (res.isSuccess){
                                 Toast.makeText(context,"上传成功",Toast.LENGTH_SHORT).show()
                                 transportViewModel.uploadedList.add(com.benxinm.localoss.ui.model.File(file.name,file.length(),System.currentTimeMillis(),FileType.PIC))
+                                if (bucketViewModel.currentBucket!!.id==7){
+                                    bucketViewModel.bucketSize[0]++
+                                }else if(bucketViewModel.currentBucket!!.id==19){
+                                    bucketViewModel.bucketSize[1]++
+                                }else{
+                                    bucketViewModel.bucketSize[2]++
+                                }
                             }else{
                                 res.onFailure {
                                     Log.e("Network",it.message.toString())
@@ -95,10 +102,17 @@ fun UploadPage(navController: NavController, token: String, bucketViewModel: Buc
                             val fileBody  = RequestBody.create(MediaType.parse("multipart/form-data"),videoFile)
                             builder.addFormDataPart("file",videoFile.name,fileBody)
                             val parts = builder.build().parts()
-                            Repository.uploadSingleFile(token,parts).observe(lifecycleOwner){res->
+                            Repository.uploadSingleFile("${Utils.HTTP+Utils.ip}/put/uploadSimple",token,parts).observe(lifecycleOwner){res->
                                 if (res.isSuccess){
                                     Toast.makeText(context,"上传成功",Toast.LENGTH_SHORT).show()
                                     transportViewModel.uploadedList.add(com.benxinm.localoss.ui.model.File(videoFile.name,videoFile.length(),System.currentTimeMillis(),FileType.VIDEO))
+                                    if (bucketViewModel.currentBucket!!.id==7){
+                                        bucketViewModel.bucketSize[0]++
+                                    }else if(bucketViewModel.currentBucket!!.id==19){
+                                        bucketViewModel.bucketSize[1]++
+                                    }else{
+                                        bucketViewModel.bucketSize[2]++
+                                    }
                                 }else{
                                     res.onFailure {
                                         Log.e("Network",it.message.toString())
@@ -112,7 +126,7 @@ fun UploadPage(navController: NavController, token: String, bucketViewModel: Buc
                             val pieces = 10
                             val blockSize = videoFile.length()/pieces
                             var key:String? =null
-                            Repository.uploadPrepare(token,originMd5.toString(),videoFile.name,pieces,blockSize,bucketViewModel.currentBucket!!.id,false).observe(lifecycleOwner){
+                            Repository.uploadPrepare("${Utils.HTTP+Utils.ip}/put/shardPreparation",token,originMd5.toString(),videoFile.name,pieces,blockSize,bucketViewModel.currentBucket!!.id,false).observe(lifecycleOwner){
                                 if (it.isSuccess){
                                     Log.d("UploadBlock","已获取Key")
                                     it.getOrNull()?.let {string->
@@ -139,7 +153,7 @@ fun UploadPage(navController: NavController, token: String, bucketViewModel: Buc
                                         val fileBody  = RequestBody.create(MediaType.parse("multipart/form-data"),file)
                                         builder.addFormDataPart("file",file.name,fileBody)
                                         val parts = builder.build().parts()
-                                        Repository.uploadBlock(token,parts).observe(lifecycleOwner){
+                                        Repository.uploadBlock("${Utils.HTTP+Utils.ip}/put/uploadShard",token,parts).observe(lifecycleOwner){
                                             if (it.isSuccess){
                                                 it.getOrNull()?.let {num->
                                                     Log.d("UploadBlockSuccess",num.toString())
@@ -259,7 +273,7 @@ fun UploadPage(navController: NavController, token: String, bucketViewModel: Buc
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.ic_video_pre),
+                                    painter = painterResource(id = R.drawable.ic_local_file),
                                     contentDescription = "",
                                     modifier = Modifier
                                         .size(50.dp)
@@ -293,7 +307,7 @@ fun UploadPage(navController: NavController, token: String, bucketViewModel: Buc
                                             val fileBody  = RequestBody.create(MediaType.parse("multipart/form-data"),file)
                                             builder.addFormDataPart("file",file.name,fileBody)
                                             val parts = builder.build().parts()
-                                            Repository.uploadSingleFile(token,parts).observe(lifecycleOwner){res->
+                                            Repository.uploadSingleFile("${Utils.HTTP+Utils.ip}/put/uploadSimple",token,parts).observe(lifecycleOwner){res->
                                                 if (res.isSuccess){
                                                     transportViewModel.uploadedList.add(com.benxinm.localoss.ui.model.File(file.name,file.length(),System.currentTimeMillis(),FileType.TEXT))
                                                     Toast.makeText(context,"上传成功",Toast.LENGTH_SHORT).show()

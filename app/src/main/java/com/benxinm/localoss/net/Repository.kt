@@ -15,9 +15,9 @@ object Repository {
     /**
      * User
      */
-    fun login(email:String,password:String)=liveData(Dispatchers.IO){
+    fun login(url:String,email:String,password:String)=liveData(Dispatchers.IO){
         val result = try {
-            val loginResponse = UserNetwork.login(email, password)
+            val loginResponse = UserNetwork.login(url,email, password)
             if (loginResponse.code==200){
                 Result.success(loginResponse.data)
             }else{
@@ -28,9 +28,9 @@ object Repository {
         }
         emit(result)
     }
-    fun register(email:String,password:String,code:String)=liveData(Dispatchers.IO){
+    fun register(url: String,email:String,password:String,code:String)=liveData(Dispatchers.IO){
         val result = try {
-            val response = UserNetwork.register(email, password, code)
+            val response = UserNetwork.register(url,email, password, code)
             if (response.code==200){
                 Result.success(true)
             }else{
@@ -41,10 +41,10 @@ object Repository {
         }
         emit(result)
     }
-    fun sendCode(email: String)= liveData(Dispatchers.IO) {
+    fun sendCode(url: String,email: String)= liveData(Dispatchers.IO) {
         val result = try {
             Log.d("sendCode","1")
-            val response = UserNetwork.sendCode(email)
+            val response = UserNetwork.sendCode(url,email)
             Log.d("sendCode","2")
             if (response.code==200){
                 Log.d("sendCode","3")
@@ -59,9 +59,9 @@ object Repository {
         }
         emit(result)
     }
-    fun logout(token:String) = liveData(Dispatchers.IO) {
+    fun logout(url: String, token:String) = liveData(Dispatchers.IO) {
         val result = try {
-            val response = UserNetwork.logout(token)
+            val response = UserNetwork.logout(url,token)
             if (response.code==200){
                 Result.success(true)
             }else{
@@ -75,9 +75,9 @@ object Repository {
     /**
      * Bucket
      */
-    fun addBucket(token: String,name:String,authority:Int)= liveData(Dispatchers.IO) {
+    fun addBucket(url: String,token: String,name:String,authority:Int)= liveData(Dispatchers.IO) {
         val result = try {
-            val response = BucketNetwork.addBucket(token, name, authority)
+            val response = BucketNetwork.addBucket(url,token, name, authority)
             if (response.code==200){
                 Result.success(true)
             }else{
@@ -88,9 +88,9 @@ object Repository {
         }
         emit(result)
     }
-    fun updateAuthority(token: String,id:Int,authority: Int) = liveData(Dispatchers.IO){
+    fun updateAuthority(url: String,token: String,id:Int,authority: Int) = liveData(Dispatchers.IO){
         val result = try {
-            val response = BucketNetwork.updateAuthority(token, id, authority)
+            val response = BucketNetwork.updateAuthority(url,token, id, authority)
             if (response.code==200){
                 Result.success(true)
             }else{
@@ -101,9 +101,9 @@ object Repository {
         }
         emit(result)
     }
-    fun updateName(token: String,id:Int,name: String) = liveData(Dispatchers.IO){
+    fun updateName(url: String,token: String,id:Int,name: String) = liveData(Dispatchers.IO){
         val result = try {
-            val response = BucketNetwork.updateName(token, id, name)
+            val response = BucketNetwork.updateName(url,token, id, name)
             if (response.code==200){
                 Result.success(true)
             }else{
@@ -114,9 +114,9 @@ object Repository {
         }
         emit(result)
     }
-    fun getBuckets(token: String)= liveData(Dispatchers.IO) {
+    fun getBuckets(url: String,token: String)= liveData(Dispatchers.IO) {
         val result = try {
-            val response = BucketNetwork.getMyBuckets(token)
+            val response = BucketNetwork.getMyBuckets(url,token)
             if (response.code==200){
                 Result.success(response.data)
             }else{
@@ -127,9 +127,9 @@ object Repository {
         }
         emit(result)
     }
-    fun addBucketUser(token:String,id: Int,email: String,type:Int) = liveData(Dispatchers.IO) {
+    fun addBucketUser(url: String,token:String,id: Int,email: String,type:Int) = liveData(Dispatchers.IO) {
         val result = try {
-            val response = BucketNetwork.addBucketUser(token,id, email, type)
+            val response = BucketNetwork.addBucketUser(url,token,id, email, type)
             if (response.code==200){
                 Result.success(true)
             }else{
@@ -140,10 +140,10 @@ object Repository {
         }
         emit(result)
     }
-    fun getUsers(token: String,bucketId:Int) = liveData(Dispatchers.IO) {
+    fun getUsers(url: String,token: String,bucketId:Int) = liveData(Dispatchers.IO) {
         val result = try {
             Log.d("getUsers","1")
-            val response = BucketNetwork.getUsers(token,bucketId)
+            val response = BucketNetwork.getUsers(url,token,bucketId)
             Log.d("getUsers","2")
             if (response.code==200){
                 Log.d("getUsers","3")
@@ -169,9 +169,9 @@ object Repository {
         }
         emit(result)
     }
-    fun updateUserPermission(token:String,id: Int,email: String,type:Int) = liveData(Dispatchers.IO) {
+    fun updateUserPermission(url: String,token:String,id: Int,email: String,type:Int) = liveData(Dispatchers.IO) {
         val result = try {
-            val response = BucketNetwork.updateUserPermission(token,id, email, type)
+            val response = BucketNetwork.updateUserPermission(url,token,id, email, type)
             if (response.code==200){
                 Result.success(true)
             }else{
@@ -182,9 +182,35 @@ object Repository {
         }
         emit(result)
     }
-    fun deleteBucket(token: String,bucketId: Int)= liveData(Dispatchers.IO) {
+    fun deleteBucket(url: String,token: String,bucketId: Int)= liveData(Dispatchers.IO) {
         val result = try {
-            val response = BucketNetwork.deleteBucket(token,bucketId)
+            val response = BucketNetwork.deleteBucket(url,token,bucketId)
+            if (response.code==200){
+                Result.success(true)
+            }else{
+                Result.failure(RuntimeException(response.msg))
+            }
+        }catch (e:Exception){
+            Result.failure(e)
+        }
+        emit(result)
+    }
+    fun getDeletedBucket(url: String,token: String) = liveData(Dispatchers.IO) {
+        val result = try {
+            val response = BucketNetwork.getDeletedBucket(url,token)
+            if (response.code==200){
+                Result.success(response.data)
+            }else{
+                Result.failure(RuntimeException(response.msg))
+            }
+        }catch (e:Exception){
+            Result.failure(e)
+        }
+        emit(result)
+    }
+    fun recoverDeletedBucket(url: String,token: String,bucketId: Int) = liveData(Dispatchers.IO) {
+        val result = try {
+            val response = BucketNetwork.recoverDeletedBucket(url, token, bucketId)
             if (response.code==200){
                 Result.success(true)
             }else{
@@ -198,9 +224,9 @@ object Repository {
     /**
      * File
      */
-    fun uploadPrepare(token: String, md5:String, fileName:String,  num:Int,  size:Long, bucketId:Int, isZip:Boolean)=liveData(Dispatchers.IO) {
+    fun uploadPrepare(url: String,token: String, md5:String, fileName:String,  num:Int,  size:Long, bucketId:Int, isZip:Boolean)=liveData(Dispatchers.IO) {
         val result = try {
-            val response = FileNetwork.uploadPrepare(token,md5,fileName,num, size, bucketId, isZip)
+            val response = FileNetwork.uploadPrepare(url,token,md5,fileName,num, size, bucketId, isZip)
             if (response.code==200){
                 Result.success(response.data)
             }else{
@@ -211,10 +237,10 @@ object Repository {
         }
         emit(result)
     }
-    fun uploadBlock(token:String, partList: List<MultipartBody.Part>)=liveData(Dispatchers.IO) {
+    fun uploadBlock(url: String,token:String, partList: List<MultipartBody.Part>)=liveData(Dispatchers.IO) {
         val result = try {
             Log.d("UploadBlock","被调1")
-            val response = FileNetwork.uploadBlock(token,partList)
+            val response = FileNetwork.uploadBlock(url,token,partList)
             Log.d("UploadBlock","被调2")
             if (response.code==200){
                 Log.d("UploadBlock","被调3")
@@ -229,10 +255,10 @@ object Repository {
         }
         emit(result)
     }
-    fun uploadSingleFile(token: String, partList: List<MultipartBody.Part>)=liveData(Dispatchers.IO) {
+    fun uploadSingleFile(url: String,token: String, partList: List<MultipartBody.Part>)=liveData(Dispatchers.IO) {
         val result = try {
             Log.d("Upload","1")
-            val response = FileNetwork.uploadSingleFile(token,partList )
+            val response = FileNetwork.uploadSingleFile(url,token,partList )
             Log.d("Upload","2")
             if (response.code==200){
                 Log.d("Upload","3")
@@ -248,9 +274,9 @@ object Repository {
         }
         emit(result)
     }
-    fun deleteFile(token: String,bucketId: Int,fileName: String,isForever:Boolean)=liveData(Dispatchers.IO) {
+    fun deleteFile(url: String,token: String,bucketId: Int,fileName: String,isForever:Boolean)=liveData(Dispatchers.IO) {
         val result = try {
-            val response = FileNetwork.deleteFile(token,bucketId, fileName, isForever)
+            val response = FileNetwork.deleteFile(url,token,bucketId, fileName, isForever)
             if (response.code==200){
                 Result.success(true)
             }else{
@@ -261,9 +287,9 @@ object Repository {
         }
         emit(result)
     }
-    fun getBucketFiles(token: String,bucketId: Int)=liveData(Dispatchers.IO) {
+    fun getBucketFiles(url: String,token: String)=liveData(Dispatchers.IO) {
         val result = try {
-            val response = FileNetwork.getBucketFiles(token,bucketId)
+            val response = FileNetwork.getBucketFiles(url,token)
             if (response.code==200){
                 Result.success(response.data.fileSet)
             }else{
@@ -274,10 +300,10 @@ object Repository {
         }
         emit(result)
     }
-    fun downloadFile(token: String,bucketId: Int,fileName: String)=liveData(Dispatchers.IO) {
+    fun downloadFile(url: String,token: String,bucketId: Int,fileName: String)=liveData(Dispatchers.IO) {
         val result = try {
             Log.d("Download","1")
-            val response = FileNetwork.downloadFile(token,bucketId,fileName)
+            val response = FileNetwork.downloadFile(url,token,bucketId,fileName)
             Log.d("Download","2")
             Result.success(response)
         }catch (e:Exception){
@@ -286,9 +312,9 @@ object Repository {
         }
         emit(result)
     }
-    fun fileBackup(token: String,bucketId: Int,fileName: String)=liveData(Dispatchers.IO) {
+    fun fileBackup(url: String,token: String,bucketId: Int,fileName: String)=liveData(Dispatchers.IO) {
         val result = try {
-            val response = FileNetwork.fileBackup(token,bucketId, fileName)
+            val response = FileNetwork.fileBackup(url,token,bucketId, fileName)
             Result.success(true)
         }catch (e:Exception){
             Result.failure(e)

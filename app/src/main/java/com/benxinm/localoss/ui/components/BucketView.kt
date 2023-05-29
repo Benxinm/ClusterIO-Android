@@ -50,7 +50,7 @@ fun PermissionBucketView(name:String,permissionType: PermissionType,onClick:(Str
             .wrapContentWidth()
             .wrapContentHeight()
             .noRippleClickable { onClick(name) }, horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-            Icon(painter = painterResource(id = R.drawable.ic_folder), contentDescription ="folder", modifier = Modifier
+            Image(painter = painterResource(id = R.drawable.ic_folder), contentDescription ="folder", modifier = Modifier
                 .size(40.dp)
                 .padding(8.dp))
             Spacer(modifier = Modifier.width(8.dp))

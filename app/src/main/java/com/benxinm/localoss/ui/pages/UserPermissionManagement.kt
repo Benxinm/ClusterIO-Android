@@ -34,6 +34,7 @@ import com.benxinm.localoss.ui.model.UserPermissionType
 import com.benxinm.localoss.ui.theme.LightMainColor
 import com.benxinm.localoss.ui.theme.LineColor
 import com.benxinm.localoss.ui.theme.MainColor
+import com.benxinm.localoss.ui.util.Utils
 import com.benxinm.localoss.ui.util.noRippleClickable
 import com.benxinm.localoss.viewModel.BucketViewModel
 import kotlinx.coroutines.launch
@@ -63,7 +64,7 @@ fun UserPermissionManagement(navController: NavController,token:String,bucketVie
     }
     LaunchedEffect(key1 = flag){
         if (bucketViewModel.currentBucket!=null){
-            Repository.getUsers(token,bucketViewModel.currentBucket!!.id).observe(lifecycleOwner){
+            Repository.getUsers("${Utils.HTTP+ Utils.ip}/bucket/user/list",token,bucketViewModel.currentBucket!!.id).observe(lifecycleOwner){
                 if (it.isSuccess){
                     val result = it.getOrNull()
                     bucketViewModel.userList.clear()
@@ -153,7 +154,7 @@ fun UserPermissionManagement(navController: NavController,token:String,bucketVie
                         onClick = {
                             scope.launch {
                                 //TODO 加接口
-                                Repository.updateUserPermission(token,bucketViewModel.currentBucket!!.id,currentEmail,userPermissionType[currentIndex].type).observe(lifecycleOwner){
+                                Repository.updateUserPermission("${Utils.HTTP+Utils.ip}/bucket/user/setAuth",token,bucketViewModel.currentBucket!!.id,currentEmail,userPermissionType[currentIndex].type).observe(lifecycleOwner){
                                     if (it.isSuccess){
                                         flag=!flag
                                         val toast = Toast.makeText(context,"修改成功",Toast.LENGTH_SHORT)

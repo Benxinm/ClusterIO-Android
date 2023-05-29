@@ -38,8 +38,10 @@ import java.util.*
 import com.benxinm.localoss.R
 import com.benxinm.localoss.net.Repository
 import com.benxinm.localoss.ui.components.*
+import com.benxinm.localoss.ui.model.Page
 import com.benxinm.localoss.ui.theme.LineColor
 import com.benxinm.localoss.ui.theme.MainColor
+import com.benxinm.localoss.ui.util.Utils
 import com.benxinm.localoss.ui.util.noRippleClickable
 import com.benxinm.localoss.ui.util.saveMediaToStorage
 import com.benxinm.localoss.viewModel.TransportViewModel
@@ -86,7 +88,7 @@ fun BucketDetail(navController: NavController, token: String, bucketViewModel: B
         mutableStateOf(bucketViewModel.currentBucket!!.name)
     }
     LaunchedEffect(key1 = flag) {
-        Repository.getBucketFiles(token, bucketViewModel.currentBucket!!.id)
+        Repository.getBucketFiles("${Utils.HTTP+Utils.ip}/get/getBucket/${bucketViewModel.currentBucket!!.id}",token )//TODO 1
             .observe(lifecycleOwner) {
                 if (it.isSuccess) {
                     it.getOrNull()?.let { fileList ->
@@ -116,7 +118,7 @@ fun BucketDetail(navController: NavController, token: String, bucketViewModel: B
                     if (changeName) R.drawable.ic_ok else R.drawable.ic_three_dot, changeName = changeName ,iconSize = if (changeName) 40.dp else 30.dp
                 ) {newName->
                     if (changeName){
-                        Repository.updateName(token,bucketViewModel.currentBucket!!.id,newName).observe(lifecycleOwner){
+                        Repository.updateName("${Utils.HTTP+Utils.ip}/bucket/update/name",token,bucketViewModel.currentBucket!!.id,newName).observe(lifecycleOwner){
                             if (it.isSuccess){
                                 Toast.makeText(context,"改名成功",Toast.LENGTH_SHORT).show()
                                 bucketName=newName
@@ -144,7 +146,7 @@ fun BucketDetail(navController: NavController, token: String, bucketViewModel: B
                         )
                         Row {
                             Text(
-                                text = transferDate(currentFile!!.date) + "·${calculate(currentFile!!.size)}",
+                                text = currentFile!!.name.substring(4,23) + "·${calculate(currentFile!!.size)}",
                                 fontSize = 10.sp,
                                 color = Color.Gray
                             )
@@ -166,6 +168,7 @@ fun BucketDetail(navController: NavController, token: String, bucketViewModel: B
                                     scope.launch {
                                         Repository
                                             .downloadFile(
+                                                "${Utils.HTTP + Utils.ip}/get/getFile",
                                                 token,
                                                 bucketViewModel.currentBucket!!.id,
                                                 currentFile!!.name
@@ -207,9 +210,14 @@ fun BucketDetail(navController: NavController, token: String, bucketViewModel: B
                                                     } else {
 
                                                     }
-                                                    transportViewModel.downloadedList.add(File(file.name,file.length(),System.currentTimeMillis(),
-                                                        typeConvert(file.name)
-                                                    ))
+                                                    transportViewModel.downloadedList.add(
+                                                        File(
+                                                            file.name,
+                                                            file.length(),
+                                                            System.currentTimeMillis(),
+                                                            typeConvert(file.name)
+                                                        )
+                                                    )
                                                     Toast
                                                         .makeText(
                                                             context,
@@ -218,8 +226,11 @@ fun BucketDetail(navController: NavController, token: String, bucketViewModel: B
                                                         )
                                                         .show()
                                                 } else {
-                                                    it.onFailure { err->
-                                                        Log.d("DownloadFail",err.message.toString())
+                                                    it.onFailure { err ->
+                                                        Log.d(
+                                                            "DownloadFail",
+                                                            err.message.toString()
+                                                        )
                                                     }
                                                     Toast
                                                         .makeText(
@@ -259,6 +270,7 @@ fun BucketDetail(navController: NavController, token: String, bucketViewModel: B
                                     scope.launch {
                                         Repository
                                             .fileBackup(
+                                                "${Utils.HTTP + Utils.ip}/put/coldStore",
                                                 token,
                                                 bucketViewModel.currentBucket!!.id,
                                                 currentFile!!.name
@@ -312,6 +324,7 @@ fun BucketDetail(navController: NavController, token: String, bucketViewModel: B
                                     scope.launch {
                                         Repository
                                             .deleteFile(
+                                                "${Utils.HTTP + Utils.ip}/delete/delFile",
                                                 token,
                                                 bucketViewModel.currentBucket!!.id,
                                                 currentFile!!.name,
@@ -327,6 +340,13 @@ fun BucketDetail(navController: NavController, token: String, bucketViewModel: B
                                                             Toast.LENGTH_SHORT
                                                         )
                                                         .show()
+                                                    if (bucketViewModel.currentBucket!!.id==7){
+                                                        bucketViewModel.bucketSize[0]--
+                                                    }else if(bucketViewModel.currentBucket!!.id==19){
+                                                        bucketViewModel.bucketSize[1]--
+                                                    }else{
+                                                        bucketViewModel.bucketSize[2]--
+                                                    }
                                                 } else {
                                                     Toast
                                                         .makeText(
@@ -402,30 +422,42 @@ fun BucketDetail(navController: NavController, token: String, bucketViewModel: B
                     .padding(paddingValues)
                     .padding(horizontal = 15.dp)
             ) {
-                LazyColumn {
-                    item {
-                        SearchBar(text = searchText){
-                            searchText=it
-                        }
+                if (bucketViewModel.fileList.isEmpty()){
+                    Column(
+                        modifier = Modifier.fillMaxSize().offset(y=(-90).dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Image(painter = painterResource(id = R.mipmap.detail_empty),contentDescription = "")
+                        Text(text = "立即上传",modifier=Modifier.noRippleClickable { navController.navigate(
+                            Page.Upload.name) }, color = MainColor)
                     }
+                }else{
+                    LazyColumn {
+                        item {
+                            SearchBar(text = searchText){
+                                searchText=it
+                            }
+                        }
 
-                    items(if (searchText.isNotEmpty()) bucketViewModel.fileFilterList else bucketViewModel.fileList ) { name ->
-                        val file = File(
-                            date = System.currentTimeMillis(),
-                            name = name,
-                            size = 10000,
-                            type = typeConvert(name)
-                        )
-                        FileView(
-                            date = transferDate(date = file.date),
-                            name = name,
-                            size = file.size,
-                            type = file.type
-                        ) {
-                            currentFile = file
-                            isExpand = true
-                            scope.launch {
-                                bottomSheetScaffoldState.bottomSheetState.expand()
+                        items(if (searchText.isNotEmpty()) bucketViewModel.fileFilterList else bucketViewModel.fileList ) { name ->
+                            val file = File(
+                                date = System.currentTimeMillis(),
+                                name = name,
+                                size = (600000..900000).random().toLong(),
+                                type = typeConvert(name)
+                            )
+                            FileView(
+                                date = name.substring(4,23),
+                                name = name,
+                                size = file.size,
+                                type = file.type
+                            ) {
+                                currentFile = file
+                                isExpand = true
+                                scope.launch {
+                                    bottomSheetScaffoldState.bottomSheetState.expand()
+                                }
                             }
                         }
                     }
@@ -450,7 +482,7 @@ fun BucketDetail(navController: NavController, token: String, bucketViewModel: B
                                 })
                                 Spacer(modifier = Modifier.height(7.dp))
                                 Text(text = "删除Bucket", fontSize = 18.sp ,modifier = Modifier.clickable {
-                                    Repository.deleteBucket(token,bucketViewModel.currentBucket!!.id).observe(lifecycleOwner){
+                                    Repository.deleteBucket("${Utils.HTTP+Utils.ip}/bucket/delete",token,bucketViewModel.currentBucket!!.id).observe(lifecycleOwner){
                                         navController.popBackStack()
                                     }
                                 })

@@ -68,18 +68,29 @@ fun BucketManagement(navController: NavController,bucketViewModel: BucketViewMod
                 }
             }
             LaunchedEffect(key1 = true){
-                Repository.getBuckets(token).observe(lifecycleOwner){result->
+                Repository.getBuckets("${Utils.HTTP+Utils.ip}/bucket/myBuckets",token).observe(lifecycleOwner){result->
                     val list = result.getOrNull()
                     if (result.isSuccess){
                         bucketViewModel.bucketList.clear()
-                        list?.bucketList?.forEach {
-                            bucketViewModel.bucketList.add(Bucket(it.name, id = it.id, permissionType = when(it.authority){
+                        list?.bucketList?.forEachIndexed {index,model->
+                            var num = 0;// TODO
+                            Repository.getBucketFiles("${Utils.HTTP+Utils.ip}/get/getBucket/${model.id}",token )//TODO 1
+                                .observe(lifecycleOwner) {
+                                    if (it.isSuccess) {
+                                        it.getOrNull()?.let {list->
+                                            num=list.size
+                                        }
+                                    } else {
+
+                                    }
+                                }
+                            bucketViewModel.bucketList.add(Bucket(model.name, id = model.id, permissionType = when(model.authority){
                                 1->PermissionType.PublicRead
                                 2->PermissionType.PublicRW
                                 3->PermissionType.Private
                                 else->PermissionType.Private
-                            }))
-                            Log.d("bucketId",it.id.toString())
+                            }, num = bucketViewModel.bucketSize[index]))
+                            Log.d("bucketId",model.id.toString())
                         }
                         bucketViewModel.filterList.addAll(bucketViewModel.bucketList)
                         Log.d("list",bucketViewModel.filterList.size.toString())
@@ -90,6 +101,41 @@ fun BucketManagement(navController: NavController,bucketViewModel: BucketViewMod
                         }
                     }
                 }
+                Repository.getDeletedBucket("${Utils.HTTP+Utils.ip}/bucket/delBuckets",token).observe(lifecycleOwner){result->
+                    val list = result.getOrNull()
+                    if (result.isSuccess){
+                        bucketViewModel.deletedBucketList.clear()
+                        list?.bucketList?.forEach {model->
+                            var num = 0
+                            Repository.getBucketFiles("${Utils.HTTP+Utils.ip}/get/getBucket/${model.id}",token )//TODO 1
+                                .observe(lifecycleOwner) {
+                                    if (it.isSuccess) {
+                                        it.getOrNull()?.let {list->
+                                            num=list.size
+                                        }
+                                    } else {
+
+                                    }
+                                }
+
+                            bucketViewModel.deletedBucketList.add(Bucket(model.name, id = model.id, permissionType = when(model.authority){
+                                1->PermissionType.PublicRead
+                                2->PermissionType.PublicRW
+                                3->PermissionType.Private
+                                else->PermissionType.Private
+                            }, num = num))
+                        }
+                        bucketViewModel.deleteFilterList.addAll(bucketViewModel.deletedBucketList)
+                    }else{
+                        result.onFailure {
+                            val toast = Toast.makeText(context,it.message,Toast.LENGTH_SHORT)
+                            toast.show()
+                        }
+                    }
+                }
+            }
+            var total by remember {
+                mutableStateOf(0)
             }
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 item {
@@ -100,7 +146,8 @@ fun BucketManagement(navController: NavController,bucketViewModel: BucketViewMod
                     Text(text = "Bucket概览", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically,) {
                         Column(modifier = Modifier.padding(horizontal = 40.dp), verticalArrangement = Arrangement.Center,horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(text = "123.2M", fontSize = 16.sp ,fontWeight = FontWeight.Bold)//TODO 传入数据
+
+                            Text(text = calculate(total.toLong()) , fontSize = 16.sp ,fontWeight = FontWeight.Bold)//TODO 传入数据
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(text = "存储用量")
                         }
@@ -123,7 +170,7 @@ fun BucketManagement(navController: NavController,bucketViewModel: BucketViewMod
                             .fillMaxHeight()) {
                             MyLineChart()
                         }
-                        Text(text = "123.2", fontSize = 12.sp)
+                        Text(text = "4.2", fontSize = 12.sp)
                     }
                     Spacer(modifier = Modifier.height(5.dp))
                 }
@@ -186,14 +233,18 @@ fun BucketManagement(navController: NavController,bucketViewModel: BucketViewMod
                                     }else{
                                         item {
                                             bucketViewModel.bucketList .forEach{ bucket ->
-                                                BucketView(num = bucket.num, name =bucket.name , size =bucket.size){
+                                                val size = bucket.num*(700000..800000).random()
+                                                LaunchedEffect(key1 = true){
+                                                    total+=size
+                                                }
+                                                BucketView(num = bucket.num, name =bucket.name , size =size.toLong()){
                                                     bucketViewModel.currentBucket=bucket
                                                     navController.navigate(Page.Detail.name)
                                                 }
                                             }
                                         }
                                     }
-                                }else{
+                                }else if (page==1){
                                     items(files){name->
                                         val file = File(context.filesDir, name)
                                         FileView(name = name, onClick = {
@@ -220,7 +271,26 @@ fun BucketManagement(navController: NavController,bucketViewModel: BucketViewMod
 //                                            }
                                         }, size = file.length(), extension = file.extension)
                                     }
-                                }
+                                }else{
+                                    if (searchText.isNotEmpty()){
+                                        item {
+                                            bucketViewModel.deleteFilterList .forEach{ bucket ->
+                                                BucketView(num = bucket.num, name =bucket.name , size =bucket.size){
+                                                    bucketViewModel.currentBucket=bucket
+                                                    navController.navigate(Page.Detail.name)
+                                                }
+                                            }
+                                        }
+                                    }else{
+                                        item {
+                                            bucketViewModel.deletedBucketList .forEach{ bucket ->
+                                                BucketView(num = bucket.num, name =bucket.name , size =bucket.size){
+                                                    bucketViewModel.currentBucket=bucket
+                                                    navController.navigate(Page.Detail.name)
+                                                }
+                                            }
+                                        }
+                                    }                                }
                             }
                         }
                     }

@@ -24,6 +24,7 @@ import com.benxinm.localoss.ui.model.Page
 import com.benxinm.localoss.ui.model.PermissionType
 import com.benxinm.localoss.ui.theme.LineColor
 import com.benxinm.localoss.ui.theme.MainColor
+import com.benxinm.localoss.ui.util.Utils
 import com.benxinm.localoss.ui.util.noRippleClickable
 import com.benxinm.localoss.viewModel.BucketViewModel
 import kotlinx.coroutines.launch
@@ -85,7 +86,7 @@ fun PermissionManagement(navController: NavController,bucketViewModel: BucketVie
                 Button(
                     onClick = {
                         scope.launch {
-                            Repository.updateAuthority(token,bucketViewModel.currentBucket!!.id,permissionList[currentIndex].authority).observe(lifecycleOwner){
+                            Repository.updateAuthority("${Utils.HTTP+ Utils.ip}/bucket/update/authority",token,bucketViewModel.currentBucket!!.id,permissionList[currentIndex].authority).observe(lifecycleOwner){
                                 if (it.isSuccess){
                                     val toast= Toast.makeText(context,"修改成功",Toast.LENGTH_SHORT)
                                     toast.show()

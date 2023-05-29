@@ -2,6 +2,7 @@ package com.benxinm.localoss.ui.pages
 
 import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +31,7 @@ import com.benxinm.localoss.ui.components.TopBarWithBack
 import com.benxinm.localoss.ui.model.PermissionType
 import com.benxinm.localoss.ui.theme.LineColor
 import com.benxinm.localoss.ui.theme.MainColor
+import com.benxinm.localoss.ui.util.Utils
 import com.benxinm.localoss.ui.util.noRippleClickable
 import kotlinx.coroutines.launch
 
@@ -72,7 +74,7 @@ fun CreateBucket(navController: NavController,token:String) {
                         Toast.makeText(context, "未填写Bucket名", Toast.LENGTH_SHORT)
                     toast.show()
                 }else{
-                    Repository.addBucket(token,bucketName,permissionList[currentIndex].authority).observe(lifecycleOwner){result->
+                    Repository.addBucket("${Utils.HTTP+Utils.ip}/bucket/add",token,bucketName,permissionList[currentIndex].authority).observe(lifecycleOwner){result->
                         if (result.isSuccess){
                             val toast =
                                 Toast.makeText(context, "创建成功", Toast.LENGTH_SHORT)
@@ -186,7 +188,7 @@ fun CreateBucket(navController: NavController,token:String) {
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
+                    Image(
                         painter = painterResource(id = R.drawable.ic_folder),
                         contentDescription = "",
                         modifier = Modifier

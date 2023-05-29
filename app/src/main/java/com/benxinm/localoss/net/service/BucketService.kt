@@ -11,29 +11,34 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 interface BucketService {
     @FormUrlEncoded
-    @POST("/bucket/add")
-    fun addBucket(@Header("token")token:String,@Field("name")name:String,@Field("authority")authority:Int):Call<CommonResultNoData>
+    @POST
+    fun addBucket(@Url url:String,@Header("token")token:String,@Field("name")name:String,@Field("authority")authority:Int):Call<CommonResultNoData>
     @FormUrlEncoded
-    @POST("/bucket/update/authority")
-    fun updateAuthority(@Header("token")token:String,@Field("bucketId")id:Int,@Field("authority")authority:Int):Call<CommonResultNoData>
+    @POST
+    fun updateAuthority(@Url url:String,@Header("token")token:String,@Field("bucketId")id:Int,@Field("authority")authority:Int):Call<CommonResultNoData>
     @FormUrlEncoded
-    @POST("/bucket/update/name")
-    fun updateName(@Header("token")token:String,@Field("bucketId")id:Int,@Field("newName")name:String):Call<CommonResultNoData>
-    @GET("/bucket/myBuckets")
-    fun getBuckets(@Header("token")token:String):Call<CommonResult<BucketListModel>>
+    @POST
+    fun updateName(@Url url:String,@Header("token")token:String,@Field("bucketId")id:Int,@Field("newName")name:String):Call<CommonResultNoData>
+    @GET
+    fun getBuckets(@Url url:String,@Header("token")token:String):Call<CommonResult<BucketListModel>>
     @FormUrlEncoded
-    @POST("/bucket/delete")
-    fun deleteBucket(@Header("token")token: String,@Field("bucketId")id: Int):Call<CommonResultNoData>
+    @POST
+    fun deleteBucket(@Url url:String,@Header("token")token: String,@Field("bucketId")id: Int):Call<CommonResultNoData>
     @FormUrlEncoded
-    @POST("/bucket/user/add")
-    fun addBucketUser(@Header("token")token:String,@Field("bucketId")id:Int,@Field("email")email:String,@Field("type")type:Int):Call<CommonResultNoData>
-    @GET("/bucket/user/list")
-    fun getUsers(@Header("token")token: String,@Query("bucketId")bucketId:Int):Call<CommonResult<UserListModel>>
+    @POST
+    fun addBucketUser(@Url url:String,@Header("token")token:String,@Field("bucketId")id:Int,@Field("email")email:String,@Field("type")type:Int):Call<CommonResultNoData>
+    @GET
+    fun getUsers(@Url url:String,@Header("token")token: String,@Query("bucketId")bucketId:Int):Call<CommonResult<UserListModel>>
     @FormUrlEncoded
-    @POST("/bucket/user/setAuth")
-    fun updateUserPermission(@Header("token")token: String,@Field("bucketId")bucketId: Int,@Field("email")email: String,@Field("type")type: Int):Call<CommonResultNoData>
-
+    @POST
+    fun updateUserPermission(@Url url:String,@Header("token")token: String,@Field("bucketId")bucketId: Int,@Field("email")email: String,@Field("type")type: Int):Call<CommonResultNoData>
+    @GET
+    fun getDeletedBucket(@Url url: String,@Header("token") token: String):Call<CommonResult<BucketListModel>>
+    @FormUrlEncoded
+    @POST
+    fun recoverDeletedBucket(@Url url: String,@Header("token")token: String,@Field("bucketId") bucketId: Int):Call<CommonResultNoData>
 }
